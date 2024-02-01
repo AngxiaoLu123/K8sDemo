@@ -7,16 +7,16 @@ EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
 WORKDIR /src
-COPY ["K8sDemo/K8sDemo.csproj", "K8sDemo/"]
-RUN dotnet restore "K8sDemo/K8sDemo.csproj"
+COPY ["MasterApi/MasterApi.csproj", "MasterApi/"]
+RUN dotnet restore "MasterApi/MasterApi.csproj"
 COPY . .
-WORKDIR "/src/K8sDemo"
-RUN dotnet build "K8sDemo.csproj" -c Release -o /app/build
+WORKDIR "/src/MasterApi"
+RUN dotnet build "MasterApi.csproj" -c Release -o /app/build
 
 FROM build AS publish
-RUN dotnet publish "K8sDemo.csproj" -c Release -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "MasterApi.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "K8sDemo.dll"]
+ENTRYPOINT ["dotnet", "MasterApi.dll"]

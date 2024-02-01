@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.7.34221.43
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "K8sDemo", "K8sDemo\K8sDemo.csproj", "{565D0765-A043-499E-BE06-70BCC9739E7B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MasterApi", "MasterApi\MasterApi.csproj", "{565D0765-A043-499E-BE06-70BCC9739E7B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WorkerApi", "WorkerApi\WorkerApi.csproj", "{ACE58E57-3504-48CC-851C-820805C75DFA}"
 EndProject
