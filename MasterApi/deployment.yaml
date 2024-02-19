@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: master-api-deployment
+spec:
+  replicas: 1  # Set the desired number of replicas based on your requirements
+  selector:
+    matchLabels:
+      app: master-api
+  template:
+    metadata:
+      labels:
+        app: master-api
+    spec:
+      containers:
+      - name: master-api-container
+        image: luangxiao/master-api:v5  # Set your API A Docker image
+        ports:
+        - containerPort: 80  # Set the port on which your API A listens
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: master-api-service
+spec:
+  selector:
+    app: master-api
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: LoadBalancer  # Adjust the service type based on your requirements

@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: worker-api-003
+  labels:
+    subdomain: worker-subdomain
+spec:
+  hostname: worker-api-003 # Hostname is mandatory!!!!! Otherwise we cannot use <Pod-Hostname>.Subdomain.default.svc.cluster.local to visit the pod.
+  subdomain: worker-subdomain
+  containers:
+  - name: worker-api-container
+    image: luangxiao/worker-api:v3
+    ports:
+    - containerPort: 80 # Assuming your API listens on port 80

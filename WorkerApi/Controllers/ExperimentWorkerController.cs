@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 namespace WorkerApi.Controllers
 {
     [ApiController]
-    [Route( "[controller]" )]
     public class ExperimentWorkerController : ControllerBase
     {
 
@@ -11,10 +10,11 @@ namespace WorkerApi.Controllers
         {
         }
 
-        [HttpGet( Name = "GetName" )]
+        [HttpGet]
+        [Route( "/name" )]
         public string Get( [FromQuery] string id)
         {
-            return "Name"+id;
+            return "(v3) Name"+id;
         }
     }
 }

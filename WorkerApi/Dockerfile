@@ -3,20 +3,14 @@
 FROM mcr.microsoft.com/dotnet/aspnet:7.0 AS base
 WORKDIR /app
 EXPOSE 80
-EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
 WORKDIR /src
-COPY ["WorkerApi/WorkerApi.csproj", "WorkerApi/"]
-RUN dotnet restore "WorkerApi/WorkerApi.csproj"
 COPY . .
-WORKDIR "/src/WorkerApi"
-RUN dotnet build "WorkerApi.csproj" -c Release -o /app/build
-
-FROM build AS publish
-RUN dotnet publish "WorkerApi.csproj" -c Release -o /app/publish /p:UseAppHost=false
+RUN dotnet restore
+RUN dotnet publish -c Release -o publish
 
 FROM base AS final
 WORKDIR /app
-COPY --from=publish /app/publish .
+COPY --from=build /src/publish .
 ENTRYPOINT ["dotnet", "WorkerApi.dll"]

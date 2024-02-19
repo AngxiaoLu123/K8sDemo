@@ -5,19 +5,50 @@ using Microsoft.AspNetCore.Mvc;
 namespace MasterApi.Controllers
 {
     [ApiController]
-    [Route( "[controller]" )]
     public class ExperimentController : ControllerBase
     {
         public ExperimentController()
         {
         }
-        [HttpPost( Name = "CreatePod" )]
+
+        [HttpPost]
+        [Route( "/pod" )]
         public async Task<IActionResult> Get( [FromQuery] string id )
         {
-            IKubernetes k8sClient = GetKubernetesClient();
-            var workerPodName = await CreatePod( k8sClient, id );
-            var getWorkerPodUrl = GetPodURLFromMapping( workerPodName );
-            UpdateIdToWorkerURLMapping( id, getWorkerPodUrl );
+            try
+            {
+                IKubernetes k8sClient = GetKubernetesClient();
+                var workerPodName = await CreatePod( k8sClient, id );
+                return Ok( workerPodName );
+            }
+            catch( Exception ex )
+            {
+                return Problem( ex.Message + ex.StackTrace );
+            }
+
+        }
+
+
+        [HttpGet]
+        [Route("/name")]
+        public string GetName( [FromQuery] string id )
+        {
+            try
+            {
+
+                //var workerPodUrl = GetPodURLFromMapping( id );
+                var url = "http://worker-api-" + id + ".worker-subdomain.default.svc.cluster.local";
+                return RedirectRequest( url, id );
+            }catch(Exception ex )
+            {
+                return ex.Message+ex.StackTrace;
+            }
+        }
+
+        [HttpGet]
+        [Route( "/health" )]
+        public IActionResult HealthCheck()
+        {
             return Ok();
         }
 
@@ -27,7 +58,7 @@ namespace MasterApi.Controllers
             {
                 Metadata = new V1ObjectMeta
                 {
-                    Name = "api-b-pod",
+                    Name = "worker-api-pod" + id,
                 },
                 Spec = new V1PodSpec
                 {
@@ -35,8 +66,22 @@ namespace MasterApi.Controllers
                 {
                     new V1Container
                     {
-                        Name = "api-b-container",
-                        Image = "your-api-b-image",
+                        Name = "worker-api-container",
+                        Image = "luangxiao/worker-api:v1",
+                        Ports = new []{ new V1ContainerPort { ContainerPort = 80 } },
+                        Resources = new V1ResourceRequirements
+                        {
+                            Limits = new Dictionary<string, ResourceQuantity>
+                            {
+                                {"cpu", new ResourceQuantity("0.5")}, // 0.5 CPU cores
+                                {"memory", new ResourceQuantity("512Mi")}, // 512 Megabytes of memory
+                            },
+                            Requests = new Dictionary<string, ResourceQuantity>
+                            {
+                                {"cpu", new ResourceQuantity("0.2")}, // 0.2 CPU cores
+                                {"memory", new ResourceQuantity("256Mi")}, // 256 Megabytes of memory
+                            },
+                        },
                     },
                 },
                 },
@@ -51,26 +96,20 @@ namespace MasterApi.Controllers
             }
             catch( Exception ex )
             {
-                Console.WriteLine( $"Error creating pod for API B: {ex.Message}" );
-                return null;
+                return $"Error creating pod for API B: {ex.StackTrace}";
             }
-        }
-
-        [HttpGet( Name = "GetName" )]
-        public string GetName( [FromQuery] string id )
-        {
-            var workerPodUrl = GetPodURLFromMapping( id );
-            return RedirectRequest( workerPodUrl, id );
         }
 
         private string RedirectRequest( string podUrl, string id )
         {
             //Http request
-            throw new NotImplementedException();
+            return HttpHelper.InvokeApi( podUrl + "/name?id=" + id );
         }
         private IKubernetes GetKubernetesClient()
         {
-            throw new NotImplementedException();
+            var config = KubernetesClientConfiguration.InClusterConfig();
+            return new Kubernetes( config );
+
         }
         private void UpdateIdToWorkerURLMapping( string id, object getWorkerPodUrl )
         {
