@@ -30,7 +30,7 @@ namespace MasterApi.Controllers
 
 
         [HttpGet]
-        [Route("/name")]
+        [Route( "/name" )]
         public string GetName( [FromQuery] string id )
         {
             try
@@ -39,9 +39,10 @@ namespace MasterApi.Controllers
                 //var workerPodUrl = GetPodURLFromMapping( id );
                 var url = "http://worker-api-" + id + ".worker-subdomain.default.svc.cluster.local";
                 return RedirectRequest( url, id );
-            }catch(Exception ex )
+            }
+            catch( Exception ex )
             {
-                return ex.Message+ex.StackTrace;
+                return ex.Message + ex.StackTrace;
             }
         }
 
@@ -58,32 +59,35 @@ namespace MasterApi.Controllers
             {
                 Metadata = new V1ObjectMeta
                 {
-                    Name = "worker-api-pod" + id,
+                    Name = "worker-api-" + id,
+                    Labels = new Dictionary<string, string>() { { "subdomain", "worker-subdomain" } }
                 },
                 Spec = new V1PodSpec
                 {
+                    Hostname = "worker-api-" + id,
+                    Subdomain = "worker-subdomain",
                     Containers = new List<V1Container>
-                {
-                    new V1Container
                     {
-                        Name = "worker-api-container",
-                        Image = "luangxiao/worker-api:v1",
-                        Ports = new []{ new V1ContainerPort { ContainerPort = 80 } },
-                        Resources = new V1ResourceRequirements
+                        new V1Container
                         {
-                            Limits = new Dictionary<string, ResourceQuantity>
+                            Name = "worker-api-container",
+                            Image = "luangxiao/worker-api:v3",
+                            Ports = new []{ new V1ContainerPort { ContainerPort = 80 } },
+                            Resources = new V1ResourceRequirements
                             {
-                                {"cpu", new ResourceQuantity("0.5")}, // 0.5 CPU cores
-                                {"memory", new ResourceQuantity("512Mi")}, // 512 Megabytes of memory
-                            },
-                            Requests = new Dictionary<string, ResourceQuantity>
-                            {
-                                {"cpu", new ResourceQuantity("0.2")}, // 0.2 CPU cores
-                                {"memory", new ResourceQuantity("256Mi")}, // 256 Megabytes of memory
+                                Limits = new Dictionary<string, ResourceQuantity>
+                                {
+                                    {"cpu", new ResourceQuantity("0.5")}, // 0.5 CPU cores
+                                    {"memory", new ResourceQuantity("512Mi")}, // 512 Megabytes of memory
+                                },
+                                Requests = new Dictionary<string, ResourceQuantity>
+                                {
+                                    {"cpu", new ResourceQuantity("0.2")}, // 0.2 CPU cores
+                                    {"memory", new ResourceQuantity("256Mi")}, // 256 Megabytes of memory
+                                },
                             },
                         },
                     },
-                },
                 },
             };
 
@@ -96,7 +100,7 @@ namespace MasterApi.Controllers
             }
             catch( Exception ex )
             {
-                return $"Error creating pod for API B: {ex.StackTrace}";
+                return $"Error creating pod: {ex.Message} {ex.StackTrace}";
             }
         }
 

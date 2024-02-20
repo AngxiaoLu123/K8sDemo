@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: master-api-container
-        image: luangxiao/master-api:v5  # Set your API A Docker image
+        image: luangxiao/master-api:v7  # Set your API A Docker image
         ports:
         - containerPort: 80  # Set the port on which your API A listens
 ---
