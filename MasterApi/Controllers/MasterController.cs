@@ -5,21 +5,21 @@ using Microsoft.AspNetCore.Mvc;
 namespace MasterApi.Controllers
 {
     [ApiController]
-    public class ExperimentController : ControllerBase
+    public class MasterController : ControllerBase
     {
-        public ExperimentController()
+        public MasterController()
         {
         }
 
         [HttpPost]
         [Route( "/pod" )]
-        public async Task<IActionResult> Get( [FromQuery] string id )
+        public async Task<IActionResult> CreatePod( [FromQuery] string id )
         {
             try
             {
                 IKubernetes k8sClient = GetKubernetesClient();
-                var workerPodName = await CreatePod( k8sClient, id );
-                return Ok( workerPodName );
+                var newWorkerPodName = await CreatePod( k8sClient, id );
+                return Ok( newWorkerPodName );
             }
             catch( Exception ex )
             {
@@ -35,8 +35,6 @@ namespace MasterApi.Controllers
         {
             try
             {
-
-                //var workerPodUrl = GetPodURLFromMapping( id );
                 var url = "http://worker-api-" + id + ".worker-subdomain.default.svc.cluster.local";
                 return RedirectRequest( url, id );
             }
@@ -114,15 +112,6 @@ namespace MasterApi.Controllers
             var config = KubernetesClientConfiguration.InClusterConfig();
             return new Kubernetes( config );
 
-        }
-        private void UpdateIdToWorkerURLMapping( string id, object getWorkerPodUrl )
-        {
-            throw new NotImplementedException();
-        }
-
-        private string GetPodURLFromMapping( string workerPodName )
-        {
-            throw new NotImplementedException();
         }
     }
 }
